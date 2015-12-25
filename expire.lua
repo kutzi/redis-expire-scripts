@@ -1,11 +1,11 @@
-local modified={};
+local expired=0;
 
 for i,k in ipairs(KEYS) do
     local ttl=redis.call('ttl', k);
     if ttl == -1 then
         redis.call('EXPIRE', k, 60)
-        modified[#modified + 1] = k;
+        expired = expired + 1;
     end
 end
 
-return modified;
+return "Expired " .. expired .. " keys";
