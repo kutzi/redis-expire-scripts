@@ -18,12 +18,16 @@ while [[ $cursor -ne 0 ]]; do
 
   reply=$(redis-cli -h $1 -p $2 SCAN $cursor MATCH $3 COUNT 100)
   cursor=$(expr "$reply" : '\([0-9]*[0-9 ]\)')
-  echo "Cursor: $cursor"
+  if [[ $? -eq 0 ]]; then
+    echo "Cursor: $cursor"
+  else
+    echo "Error: $reply"
+  fi
 
   keys=$(echo $reply | awk '{for (i=2; i<=NF; i++) print $i}')
   [ -z "$keys" ] && continue
 
   keya=( $keys )
   count=$(echo ${#keya[@]})
-  redis-cli -h $1 -p $2 EVAL "$(cat expire.lua)" $count $keys
+  #redis-cli -h $1 -p $2 EVAL "$(cat expire.lua)" $count $keys
 done
